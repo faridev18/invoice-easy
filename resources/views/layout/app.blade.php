@@ -28,6 +28,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/sharp-light.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('admin/dist/css/adminlte.min.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -82,6 +84,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                     <i class="nav-icon fas fa-home"></i>
                                     <p>
                                         Accueil
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/stat') }}" class="nav-link">
+                                    <i class="nav-icon fas fa-chart-simple"></i>
+                                    <p>
+                                        Statistique
                                     </p>
                                 </a>
                             </li>

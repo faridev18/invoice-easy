@@ -22,6 +22,7 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [Controller::class, 'dashboard']);
+    Route::get('/stat', [Controller::class, 'stat']);
     // Route::get('/logout', [Controller::class, 'logout']);
 
     Route::get('/ajouter-utilisateur', [Controller::class, 'ajouterUtilisateur']);

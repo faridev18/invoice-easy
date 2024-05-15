@@ -7,6 +7,7 @@ use App\Models\LigneFacture;
 use App\Models\Paiement;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -23,6 +24,43 @@ class Controller extends BaseController
     {
         $users = User::all();
         return view('home')->with('users', $users);
+    }
+
+    public function stat()
+    {
+        $totalUsers = User::count();
+        $totalClients = User::where('type_user', '1')->count();
+        $totalComptables = User::where('type_user', '2')->count();
+        $totalSecretaires = User::where('type_user', '3')->count();
+        $totalAdmins = User::where('type_user', '4')->count();
+        $totalServices = Service::count();
+        $totalFactures = Facture::count();
+        $totalMontantFactures = Facture::sum('montant_ttc');
+        $totalPaiements = Paiement::count();
+        $totalMontantPaiements = Paiement::sum('montant_paiement');
+        $totalLigneFactures = LigneFacture::count();
+        $totalMontantHTLigneFactures = LigneFacture::sum('montant_ht');
+        $totalMontantTTCLigneFactures = LigneFacture::sum('montant_ttc');
+        $totalMontantTVALigneFactures = LigneFacture::sum('montant_tva');
+
+        // Exemple de données mensuelles pour les factures
+        $facturesParMois = Facture::select(
+            DB::raw('SUM(montant_ttc) as montant'),
+            DB::raw('MONTH(date_facture) as mois')
+        )->groupBy('mois')->orderBy('mois')->pluck('montant', 'mois')->toArray();
+
+        // Ajouter les montants mensuels dans un tableau pour les graphiques
+        $montantsMensuels = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $montantsMensuels[] = $facturesParMois[$i] ?? 0;
+        }
+
+        return view('dash', compact(
+            'totalUsers', 'totalClients', 'totalComptables', 'totalSecretaires', 'totalAdmins',
+            'totalServices', 'totalFactures', 'totalMontantFactures', 'totalPaiements', 'totalMontantPaiements',
+            'totalLigneFactures', 'totalMontantHTLigneFactures', 'totalMontantTTCLigneFactures', 'totalMontantTVALigneFactures',
+            'montantsMensuels'
+        ));
     }
 
     public function ajouterUtilisateur()
