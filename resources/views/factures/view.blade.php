@@ -8,8 +8,15 @@
                 <p><strong>Date d'échéance:</strong> {{ $facture->date_echeance }}</p>
                 <p><strong>Client:</strong> {{ $facture->user->nom }} {{ $facture->user->prenom }}</p>
             </div>
+            <div class="mt-3">
+                @if ($facture->etat_paiement == 'payé')
+                    <span class="badge badge-success">Payé</span>
+                @else
+                    <a href="{{ url('/payement/'.$facture->id.'/montant/'.$facture->lignesFacture->sum('montant_ttc')) }}" class="btn btn-warning">Payer la facture</a>
+                @endif
+            </div>
         </div>
-        <div class="invoice-body">
+        <div class="invoice-body table-responsive">
             <table class="table table-bordered">
                 <thead>
                     <tr>

@@ -36,7 +36,9 @@
                         <option value="1">Client</option>
                         <option value="2">Comptable</option>
                         <option value="3">Secretaire</option>
-                        {{-- <option value="4">Admin</option> --}}
+                        @if (Auth::user()->isAdmin())
+                            <option value="4" >Admin</option>
+                        @endif
                     </select>
                 </div>
                 <div class="form-group">

@@ -44,7 +44,7 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    
+
                     <tbody>
                         @foreach ($factures as $facture)
                             <tr>
@@ -55,21 +55,33 @@
                                 <td>{{ $facture->montant_ht }}</td>
                                 <td>{{ $facture->taux_tva }}</td>
                                 <td>{{ $facture->montant_ttc }}</td>
-                                <td>{{ $facture->etat_paiement }}</td>
+                                <td>
+                                    @if ($facture->etat_paiement == 'payé')
+                                        <span class="badge badge-success">Payé</span>
+                                    @elseif ($facture->etat_paiement == 'en attente')
+                                        <span class="badge badge-warning">En attente</span>
+                                    @endif
+                                </td>
                                 <td>{{ $facture->mode_paiement }}</td>
                                 <td>{{ $facture->note }}</td>
                                 <td>
-                                    <a href="{{ route('addlignesfacture', $facture->id) }}" class="btn btn-primary">Ajouter des lignes</a>
-                                    <a href="{{ route('viewlignesfacture', $facture->id) }}" class="btn btn-info">Voir les lignes</a>
-                                    <a href="{{ route('viewfacture', $facture->id) }}" class="btn btn-secondary">Voir la facture</a>
-                                    <form action="{{ route('deletefacture', $facture->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');" style="display:inline;">
+                                    <a href="{{ route('addlignesfacture', $facture->id) }}" class="btn btn-primary">Ajouter
+                                        des lignes</a>
+                                    <a href="{{ route('viewlignesfacture', $facture->id) }}" class="btn btn-info">Voir les
+                                        lignes</a>
+                                    <a href="{{ route('viewfacture', $facture->id) }}" class="btn btn-secondary">Voir la
+                                        facture</a>
+                                    <a href="{{ route('editfacture', $facture->id) }}" class="btn btn-warning">Modifier</a>
+                                    <form action="{{ route('deletefacture', $facture->id) }}" method="POST"
+                                        onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');"
+                                        style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">Supprimer</button>
                                     </form>
                                 </td>
-                                
-                                
+
+
                             </tr>
                         @endforeach
                     </tbody>

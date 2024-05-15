@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Facture;
 use App\Models\LigneFacture;
+use App\Models\Paiement;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use PDF;
 
@@ -161,6 +162,26 @@ class Controller extends BaseController
         return redirect()->route('services')->with('status', 'Service supprimé avec succès!');
     }
 
+    public function update(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:services,id',
+            'libelle' => 'required|string|max:255',
+            'description' => 'required|string',
+            'prix_ht' => 'required|numeric',
+            'taux_tva' => 'required|numeric',
+        ]);
+
+        $service = Service::find($request->id);
+        $service->libelle = $request->libelle;
+        $service->description = $request->description;
+        $service->prix_ht = $request->prix_ht;
+        $service->taux_tva = $request->taux_tva;
+        $service->save();
+
+        return redirect()->route('services')->with('status', 'Service mis à jour avec succès !');
+    }
+
     public function ajouterFacture()
     {
         $users = User::all(); // Supposons que votre modèle User soit correctement défini
@@ -178,7 +199,6 @@ class Controller extends BaseController
             'montant_ht' => 'required|numeric',
             'taux_tva' => 'required|numeric',
             'montant_ttc' => 'required|numeric',
-            'etat_paiement' => 'required|string|max:255',
             'mode_paiement' => 'required|string|max:255',
             'note' => 'nullable|string',
         ]);
@@ -192,7 +212,7 @@ class Controller extends BaseController
         $facture->montant_ht = $request->input('montant_ht');
         $facture->taux_tva = $request->input('taux_tva');
         $facture->montant_ttc = $request->input('montant_ttc');
-        $facture->etat_paiement = $request->input('etat_paiement');
+        $facture->etat_paiement = 'en attente';
         $facture->mode_paiement = $request->input('mode_paiement');
         $facture->note = $request->input('note');
 
@@ -306,30 +326,161 @@ class Controller extends BaseController
         return view('mesfactures', compact('factures'));
     }
 
-    public function savePayement(Request $request)
+    public function savePayement($id, $montant)
     {
         // Validation des données du formulaire
-        $validated = $request->validate([
-            'facture_id' => 'required|exists:factures,id',
-            'date_paiement' => 'required|date',
-            'montant_paiement' => 'required|numeric',
-            'mode_paiement' => 'required|string|max:255',
-        ]);
 
         // Création du paiement
         $paiement = new Paiement();
-        $paiement->facture_id = $validated['facture_id'];
-        $paiement->date_paiement = $validated['date_paiement'];
-        $paiement->montant_paiement = $validated['montant_paiement'];
-        $paiement->mode_paiement = $validated['mode_paiement'];
+        $paiement->facture_id = $id;
+        $paiement->date_paiement = now();
+        $paiement->montant_paiement = $montant;
+        $paiement->mode_paiement = "kkiapay";
         $paiement->save();
 
         // Mise à jour de l'état de la facture si nécessaire
-        $facture = Facture::find($validated['facture_id']);
+        $facture = Facture::find($id);
         $facture->etat_paiement = 'payé';
         $facture->save();
 
         return redirect()->route('mes_factures', $paiement->facture_id)->with('success', 'Paiement enregistré avec succès.');
+    }
+
+    public function payementPage()
+    {
+        return view('payement');
+    }
+
+    public function editservice($id)
+    {
+        $service = Service::findOrFail($id);
+        return view('editservice', compact('service'));
+    }
+
+    public function updateservice(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:services,id',
+            'libelle' => 'required|string|max:255',
+            'description' => 'required|string',
+            'prix_ht' => 'required|numeric',
+            'taux_tva' => 'required|numeric',
+        ]);
+
+        $service = Service::find($request->id);
+        $service->libelle = $request->libelle;
+        $service->description = $request->description;
+        $service->prix_ht = $request->prix_ht;
+        $service->taux_tva = $request->taux_tva;
+        $service->save();
+
+        return redirect()->route('services')->with('status', 'Service mis à jour avec succès !');
+    }
+
+    public function editfacture($id)
+    {
+        $facture = Facture::findOrFail($id);
+        return view('editfacture', compact('facture'));
+    }
+
+    public function updatefacture(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:factures,id',
+            'date_facture' => 'required|date',
+            'date_echeance' => 'required|date',
+            'objet' => 'required|string|max:255',
+            'montant_ht' => 'required|numeric',
+            'taux_tva' => 'required|numeric',
+            'montant_ttc' => 'required|numeric',
+            'mode_paiement' => 'required|string',
+            'note' => 'nullable|string',
+        ]);
+
+        $facture = Facture::find($request->id);
+        $facture->date_facture = $request->date_facture;
+        $facture->date_echeance = $request->date_echeance;
+        $facture->objet = $request->objet;
+        $facture->montant_ht = $request->montant_ht;
+        $facture->taux_tva = $request->taux_tva;
+        $facture->montant_ttc = $request->montant_ttc;
+        $facture->mode_paiement = $request->mode_paiement;
+        $facture->note = $request->note;
+        $facture->save();
+
+        return redirect()->route('factures')->with('status', 'Facture mise à jour avec succès !');
+    }
+
+    public function editLigneFacture($id)
+    {
+        $ligneFacture = LigneFacture::findOrFail($id);
+        return view('editlignefacture', compact('ligneFacture'));
+    }
+
+    public function updateLigneFacture(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'quantite' => 'required|integer',
+            'prix_unitaire_ht' => 'required|numeric',
+            'taux_tva' => 'required|numeric',
+        ]);
+
+        $ligneFacture = LigneFacture::findOrFail($id);
+        $ligneFacture->description = $request->description;
+        $ligneFacture->quantite = $request->quantite;
+        $ligneFacture->prix_unitaire_ht = $request->prix_unitaire_ht;
+        $ligneFacture->taux_tva = $request->taux_tva;
+        $ligneFacture->montant_ht = $request->quantite * $request->prix_unitaire_ht;
+        $ligneFacture->montant_tva = $ligneFacture->montant_ht * ($request->taux_tva / 100);
+        $ligneFacture->montant_ttc = $ligneFacture->montant_ht + $ligneFacture->montant_tva;
+        $ligneFacture->save();
+
+        return redirect()->route('viewlignesfacture', $ligneFacture->facture_id)->with('status', 'Ligne de facture mise à jour avec succès !');
+    }
+
+    public function edituser($id)
+    {
+        $user = User::findOrFail($id);
+        return view('edituser', compact('user'));
+    }
+
+    public function updateuser(Request $request)
+    {
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'type_user' => 'required|string|max:255',
+            'adresse' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $request->id,
+            'code_postal' => 'required|string|max:255',
+            'ville' => 'required|string|max:255',
+            'pays' => 'required|string|max:255',
+            'telephone' => 'required|string|max:255',
+            'tva' => 'required|string|max:255',
+        ]);
+
+        $user = User::findOrFail($request->id);
+        $user->update([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'type_user' => $request->type_user,
+            'adresse' => $request->adresse,
+            'email' => $request->email,
+            'code_postal' => $request->code_postal,
+            'ville' => $request->ville,
+            'pays' => $request->pays,
+            'telephone' => $request->telephone,
+            'tva' => $request->tva,
+        ]);
+
+        return redirect()->route('users')->with('statuss', 'Utilisateur mis à jour avec succès.');
+    }
+
+    public function payements()
+    {
+        $payements = Paiement::paginate(10);
+        return view('payements', compact('payements'));
     }
 
 }

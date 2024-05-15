@@ -61,6 +61,8 @@
                                 <td>{{ $item->tva }}</td>
                                 <td>{{ $item->created_at }}</td>
                                 <td>
+                                    <a href="{{ route('edituser', $item->id) }}" class="btn btn-primary">Modifier</a>
+
                                     <form action="{{ route('deleteuser', $item->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
                                         @csrf
                                         @method('DELETE')

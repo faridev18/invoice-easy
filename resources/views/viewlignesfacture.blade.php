@@ -6,7 +6,6 @@
         <div class="card-header">
             <h3 class="card-title">Lignes de facture</h3> <br>
             <a href="{{ route('addlignesfacture', $facture->id) }}" class="btn btn-primary">Ajouter une ligne de facture</a>
-
         </div>
         <div class="card-body">
             @if (Session::has('status'))
@@ -47,7 +46,8 @@
                                 <td>{{ $ligne->montant_tva }}</td>
                                 <td>{{ $ligne->montant_ttc }}</td>
                                 <td>
-                                    <form action="{{ route('deletelignefacture', $ligne->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne de facture ?');">
+                                    <a href="{{ route('editlignefacture', $ligne->id) }}" class="btn btn-warning">Modifier</a>
+                                    <form action="{{ route('deletelignefacture', $ligne->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne de facture ?');" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">Supprimer</button>

@@ -55,4 +55,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(Facture::class, 'user_id');
     }
+
+
+    public function isAdmin()
+    {
+        return $this->type_user === '4'; 
+    }
+
+    public function isClient()
+    {
+        return $this->type_user === '1'; 
+    }
+
+    public function isComptable()
+    {
+        return $this->type_user === '2';
+    }
+
+    public function isSecretaire()
+    {
+        return $this->type_user === '3';
+    }
 }

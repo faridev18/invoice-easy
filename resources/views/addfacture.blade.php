@@ -55,10 +55,7 @@
                     <label for="montant_ttc">Montant TTC</label>
                     <input type="text" name="montant_ttc" class="form-control" id="montant_ttc" placeholder="Montant TTC">
                 </div>
-                <div class="form-group">
-                    <label for="etat_paiement">État de paiement</label>
-                    <input type="text" name="etat_paiement" class="form-control" id="etat_paiement" placeholder="État de paiement">
-                </div>
+                
                 <div class="form-group">
                     <label for="mode_paiement">Mode de paiement</label>
                     <input type="text" name="mode_paiement" class="form-control" id="mode_paiement" placeholder="Mode de paiement">

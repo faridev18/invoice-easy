@@ -1,4 +1,5 @@
 @extends('layout.app')
+
 @section('contenu')
     <h1>Services</h1>
 
@@ -39,7 +40,6 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    
                     <tbody>
                         @foreach ($services as $service)
                             <tr>
@@ -49,7 +49,8 @@
                                 <td>{{ $service->taux_tva }}</td>
                                 <td>{{ $service->created_at }}</td>
                                 <td>
-                                    <form action="{{ route('deleteservice', $service->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?');">
+                                    <a href="{{ route('editservice', $service->id) }}" class="btn btn-primary">Modifier</a>
+                                    <form action="{{ route('deleteservice', $service->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?');" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">Supprimer</button>
@@ -75,4 +76,6 @@
             </div>
         </div>
     </div>
+
+    
 @endsection
